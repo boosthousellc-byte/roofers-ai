@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Website Audit | See What's Costing You Customers</title>
+    <meta name="description" content="Get a free, instant website audit for your local business. See your SEO score, mobile readiness, speed, and actionable fixes in under 60 seconds.">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #475569;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 50px 20px 30px;
+        }
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        header p { color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto; }
+
+        /* Form */
+        .audit-form {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .form-group input::placeholder { color: var(--text-muted); }
+
+        .btn-audit {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--primary), #6366f1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            margin-top: 8px;
+        }
+        .btn-audit:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(59,130,246,0.3); }
+        .btn-audit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Loading */
+        .loading { display: none; text-align: center; padding: 40px; }
+        .loading.active { display: block; }
+        .spinner {
+            width: 48px; height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Results */
+        .results { display: none; margin-bottom: 40px; }
+        .results.active { display: block; }
+
+        .score-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 30px;
+            text-align: center;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        .score-number {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .score-label { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+        .grade-badge {
+            display: inline-block;
+            font-size: 1.8rem;
+            font-weight: 800;
+            padding: 8px 24px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .checks-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .check-item {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .check-icon {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .check-icon.pass { background: rgba(34,197,94,0.15); color: var(--success); }
+        .check-icon.fail { background: rgba(239,68,68,0.15); color: var(--danger); }
+        .check-name { font-weight: 600; font-size: 0.95rem; }
+        .check-detail { color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; }
+        .check-score { margin-left: auto; font-weight: 700; font-size: 0.9rem; color: var(--text-muted); white-space: nowrap; }
+
+        .recs-section {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        .recs-section h3 { margin-bottom: 16px; font-size: 1.1rem; }
+        .rec-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .rec-item:last-child { border-bottom: none; }
+        .rec-priority {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-right: 8px;
+        }
+        .rec-priority.high { background: rgba(239,68,68,0.15); color: var(--danger); }
+        .rec-priority.medium { background: rgba(249,115,22,0.15); color: #f97316; }
+        .rec-category { font-weight: 600; }
+        .rec-detail { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+
+        .btn-download {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .btn-download:hover { opacity: 0.9; }
+
+        .actions { text-align: center; margin: 24px 0; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+        .btn-new {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-new:hover { background: rgba(59,130,246,0.1); }
+
+        .error-msg {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            padding: 16px;
+            color: var(--danger);
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        .error-msg.active { display: block; }
+
+        /* Social proof */
+        .proof {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .proof-item { text-align: center; }
+        .proof-number { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+        .proof-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.6rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .score-number { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Free Website Audit</h1>
+        <p>See exactly what's costing you customers. Get your score, issues, and fixes in under 60 seconds.</p>
+        <div class="proof">
+            <div class="proof-item">
+                <div class="proof-number">500+</div>
+                <div class="proof-label">Audits Run</div>
+            </div>
+            <div class="proof-item">
+                <div class="proof-number">12</div>
+                <div class="proof-label">Checks Per Audit</div>
+            </div>
+            <div class="proof-item">
+                <div class="proof-number">14</div>
+                <div class="proof-label">Industries</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Audit Form -->
+        <form class="audit-form" id="auditForm">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label for="url">Website URL</label>
+                    <input type="text" id="url" name="url" placeholder="example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="business">Business Name</label>
+                    <input type="text" id="business" name="business" placeholder="Acme Roofing" required>
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" placeholder="Salt Lake City" required>
+                </div>
+                <div class="form-group full">
+                    <label for="industry">Industry</label>
+                    <select id="industry" name="industry">
+                        <option value="generic">Select your industry...</option>
+                        <option value="roofer">Roofing Company</option>
+                        <option value="dentist">Dental Practice</option>
+                        <option value="plumber">Plumbing Company</option>
+                        <option value="electrician">Electrical Contractor</option>
+                        <option value="hvac">HVAC Company</option>
+                        <option value="lawyer">Law Firm</option>
+                        <option value="chiropractor">Chiropractic Practice</option>
+                        <option value="realtor">Real Estate Agent</option>
+                        <option value="contractor">General Contractor</option>
+                        <option value="restaurant">Restaurant</option>
+                        <option value="auto_repair">Auto Repair Shop</option>
+                        <option value="salon">Hair/Beauty Salon</option>
+                        <option value="gym">Gym / Fitness Studio</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-audit" id="submitBtn">Run Free Audit</button>
+            </div>
+        </form>
+
+        <!-- Loading State -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing website...</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">Checking 12 ranking factors</p>
+        </div>
+
+        <!-- Error -->
+        <div class="error-msg" id="errorMsg"></div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+            <div class="score-card">
+                <div class="score-number" id="scoreNumber">--</div>
+                <div class="score-label">out of 100</div>
+                <div class="grade-badge" id="gradeBadge">--</div>
+            </div>
+
+            <div class="checks-grid" id="checksGrid"></div>
+
+            <div class="recs-section" id="recsSection" style="display:none;">
+                <h3>Priority Fixes</h3>
+                <div id="recsList"></div>
+            </div>
+
+            <div class="actions">
+                <button class="btn-download" id="downloadPdf">Download PDF Report</button>
+                <button class="btn-new" id="newAudit">Run Another Audit</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Powered by Roofers AI Audit Engine
+    </footer>
+
+    <script>
+    (function() {
+        // UPDATE THIS to your backend URL after deploying
+        const API_BASE = window.location.hostname === 'localhost'
+            ? 'http://localhost:8080'
+            : 'https://your-backend.example.com';  // <-- Replace after deploy
+
+        const form = document.getElementById('auditForm');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorMsg = document.getElementById('errorMsg');
+        const submitBtn = document.getElementById('submitBtn');
+
+        let lastAuditData = null;
+
+        function gradeColor(grade) {
+            const map = { A: '#22c55e', B: '#84cc16', C: '#eab308', D: '#f97316', F: '#ef4444' };
+            return map[grade] || '#94a3b8';
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.add('active');
+        }
+
+        function hideAll() {
+            loading.classList.remove('active');
+            results.classList.remove('active');
+            errorMsg.classList.remove('active');
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideAll();
+            loading.classList.add('active');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Analyzing...';
+
+            const payload = {
+                url: document.getElementById('url').value.trim(),
+                business: document.getElementById('business').value.trim(),
+                city: document.getElementById('city').value.trim(),
+                industry: document.getElementById('industry').value,
+            };
+
+            try {
+                const resp = await fetch(API_BASE + '/api/audit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    throw new Error(data.error || 'Audit failed');
+                }
+
+                lastAuditData = { ...payload };
+                renderResults(data);
+            } catch (err) {
+                hideAll();
+                showError(err.message || 'Something went wrong. Check the URL and try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Run Free Audit';
+            }
+        });
+
+        function renderResults(data) {
+            hideAll();
+            results.classList.add('active');
+
+            // Score
+            const color = gradeColor(data.grade);
+            document.getElementById('scoreNumber').textContent = data.overall_score;
+            document.getElementById('scoreNumber').style.color = color;
+            const badge = document.getElementById('gradeBadge');
+            badge.textContent = 'Grade: ' + data.grade;
+            badge.style.background = color + '20';
+            badge.style.color = color;
+
+            // Checks
+            const grid = document.getElementById('checksGrid');
+            grid.innerHTML = '';
+            for (const [name, check] of Object.entries(data.checks)) {
+                const item = document.createElement('div');
+                item.className = 'check-item';
+                item.innerHTML = `
+                    <div class="check-icon ${check.pass ? 'pass' : 'fail'}">${check.pass ? '&#10003;' : '&#10007;'}</div>
+                    <div>
+                        <div class="check-name">${name}</div>
+                        <div class="check-detail">${check.detail}</div>
+                    </div>
+                    <div class="check-score">${check.score}/${check.max}</div>
+                `;
+                grid.appendChild(item);
+            }
+
+            // Recommendations
+            const recsSection = document.getElementById('recsSection');
+            const recsList = document.getElementById('recsList');
+            if (data.recommendations && data.recommendations.length > 0) {
+                recsSection.style.display = 'block';
+                recsList.innerHTML = '';
+                data.recommendations.forEach(function(rec) {
+                    const div = document.createElement('div');
+                    div.className = 'rec-item';
+                    div.innerHTML = `
+                        <span class="rec-priority ${rec.priority.toLowerCase()}">${rec.priority}</span>
+                        <span class="rec-category">${rec.category}</span>
+                        <div class="rec-detail">${rec.detail}</div>
+                    `;
+                    recsList.appendChild(div);
+                });
+            } else {
+                recsSection.style.display = 'none';
+            }
+
+            // Scroll to results
+            results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Download PDF
+        document.getElementById('downloadPdf').addEventListener('click', async function() {
+            if (!lastAuditData) return;
+            this.disabled = true;
+            this.textContent = 'Generating PDF...';
+
+            try {
+                const resp = await fetch(API_BASE + '/api/audit/pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(lastAuditData),
+                });
+                if (!resp.ok) throw new Error('PDF generation failed');
+                const blob = await resp.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'website-audit.pdf';
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                alert('PDF download failed: ' + err.message);
+            } finally {
+                this.disabled = false;
+                this.textContent = 'Download PDF Report';
+            }
+        });
+
+        // New audit
+        document.getElementById('newAudit').addEventListener('click', function() {
+            hideAll();
+            form.reset();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    })();
+    </script>
+</body>
+</html>
