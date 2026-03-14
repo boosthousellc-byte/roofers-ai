@@ -1,0 +1,10 @@
+name: roofers-ai
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - reportlab>=4.0
+    - requests>=2.28
+    - flask>=3.0
+    - flask-cors>=4.0
+    - gunicorn>=21.2
