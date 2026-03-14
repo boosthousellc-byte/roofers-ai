@@ -88,16 +88,27 @@ def audit_pdf():
 
     pdf_path = generate_pdf(results, tmp_path)
     if not pdf_path:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
         return jsonify({"error": "PDF generation failed. Install reportlab."}), 500
 
-    return send_file(
-        pdf_path,
-        mimetype="application/pdf",
-        as_attachment=True,
-        download_name=f"audit_{business.replace(' ', '_').lower()}.pdf",
-    )
+    try:
+        return send_file(
+            pdf_path,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=f"audit_{business.replace(' ', '_').lower()}.pdf",
+        )
+    finally:
+        try:
+            os.unlink(pdf_path)
+        except OSError:
+            pass
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() in ("1", "true", "yes")
+    app.run(host="0.0.0.0", port=port, debug=debug)
