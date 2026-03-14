@@ -2,6 +2,12 @@
 """Generate outreach templates page and leads CSV."""
 import os, re, csv
 
+# ── Sender info ──────────────────────────────────────────────────────────────
+SENDER_NAME  = "Derek Lee"
+SENDER_PHONE = "(435) 500-5651"
+SENDER_EMAIL = "hello@roofers-ai.io"
+SENDER_DOMAIN = "roofers-ai.io"
+
 COMPANIES = [
     {"name": "LH Custom Contracting LLC", "type": "Bathroom remodeler", "phone": "+1 435-229-1535", "city": "Utah"},
     {"name": "Desert Plumbing Corporation", "type": "Plumber", "phone": "+1 435-668-1430", "city": "Utah"},
@@ -65,11 +71,11 @@ TEMPLATES = {
         "subject": "Free Website We Built for {name} — No Strings Attached",
         "email": """Hi there,
 
-My name is [YOUR NAME] and I'm a local web designer based in Utah.
+My name is {SENDER_NAME} and I'm a local web designer based in Utah.
 
 I was researching electricians in the area and came across {name}. I went ahead and built a professional website sample for you — completely free — to show you what your online presence could look like.
 
-You can see it here: [YOUR DOMAIN]/companies/{slug}
+You can see it here: {SENDER_DOMAIN}/companies/{slug}
 
 The site includes:
 • A professional homepage with your services and phone number
@@ -83,13 +89,13 @@ A lot of homeowners Google electricians before calling — a strong website mean
 If you'd like to claim it, customize it, or just take a look, I'd love to connect. No obligation at all.
 
 Best,
-[YOUR NAME]
-[YOUR PHONE]
-[YOUR EMAIL]""",
-        "sms": """Hi! I'm [NAME], a local web designer. I built a free website sample for {name} — no catch. You can see it at [YOUR DOMAIN]/companies/{slug}. Want me to send it over? Happy to chat about it.""",
+{SENDER_NAME}
+{SENDER_PHONE}
+{SENDER_EMAIL}""",
+        "sms": """Hi! I'm {SENDER_NAME}, a local web designer. I built a free website sample for {name} — no catch. You can see it at {SENDER_DOMAIN}/companies/{slug}. Want me to send it over? Happy to chat about it.""",
         "call_script": """Hi, is this the owner of {name}?
 
-Great — my name is [YOUR NAME], I'm a web designer based here in Utah. I actually built a free website sample for {name} — no charge, no obligation. I was researching local electricians and wanted to show you what a professional website could look like for your business.
+Great — my name is {SENDER_NAME}, I'm a web designer based here in Utah. I actually built a free website sample for {name} — no charge, no obligation. I was researching local electricians and wanted to show you what a professional website could look like for your business.
 
 I can text you the link right now so you can take a look. Is that okay?
 
@@ -101,20 +107,20 @@ I can text you the link right now so you can take a look. Is that okay?
         "subject": "Built a Free Website for {name} — Take a Look",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer in Utah. I put together a free website sample for {name} and wanted to share it with you.
+I'm {SENDER_NAME}, a web designer in Utah. I put together a free website sample for {name} and wanted to share it with you.
 
-Preview it here: [YOUR DOMAIN]/companies/{slug}
+Preview it here: {SENDER_DOMAIN}/companies/{slug}
 
 Most homeowners search Google before calling a plumber. A clean, professional website means you show up and win the call. The sample I built includes your services, a click-to-call button, testimonials, and service areas.
 
 No cost, no obligation. If you want to make it yours, I'd love to chat.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hey! I'm [NAME], a local web designer. I built a free website sample for {name} — check it out: [YOUR DOMAIN]/companies/{slug}. Would you want to take it live?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hey! I'm {SENDER_NAME}, a local web designer. I built a free website sample for {name} — check it out: {SENDER_DOMAIN}/companies/{slug}. Would you want to take it live?""",
         "call_script": """Hi, is this the owner of {name}?
 
-I'm [YOUR NAME] — I'm a web designer here in Utah. Quick question: do you currently have a website for {name}?
+I'm {SENDER_NAME} — I'm a web designer here in Utah. Quick question: do you currently have a website for {name}?
 
 [If no/weak] → That's actually why I'm calling. I went ahead and built a free website sample for you — completely free, no obligation. I can text you the link right now. It's got your services, phone number, and a professional design. Want to take a look?
 
@@ -124,21 +130,21 @@ I'm [YOUR NAME] — I'm a web designer here in Utah. Quick question: do you curr
         "subject": "Free Website for {name} — I Built It Already",
         "email": """Hey there,
 
-I'm [YOUR NAME], a web designer in Utah who works with local contractors.
+I'm {SENDER_NAME}, a web designer in Utah who works with local contractors.
 
 I built a free website sample for {name} — you can see it here:
-[YOUR DOMAIN]/companies/{slug}
+{SENDER_DOMAIN}/companies/{slug}
 
 Most people find handymen through Google, word of mouth, or Facebook — but a professional website converts those searchers into paying customers. The sample shows your services, builds trust, and makes it easy to call you.
 
 If you're interested in taking it live, I'd love to connect. If not, no hard feelings — just wanted to share it.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hi! I'm [NAME] — built a free website for {name}. See it here: [YOUR DOMAIN]/companies/{slug}. No catch — would you want this for your business?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hi! I'm {SENDER_NAME} — built a free website for {name}. See it here: {SENDER_DOMAIN}/companies/{slug}. No catch — would you want this for your business?""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME], a web designer in Utah. I built a free professional website for your business — no charge. A lot of handymen miss out on leads because customers can't find them online. I wanted to show you what it could look like.
+I'm {SENDER_NAME}, a web designer in Utah. I built a free professional website for your business — no charge. A lot of handymen miss out on leads because customers can't find them online. I wanted to show you what it could look like.
 
 Can I text you the link real quick?"""
     },
@@ -146,21 +152,21 @@ Can I text you the link real quick?"""
         "subject": "{name} — Your Free Website Sample Is Ready",
         "email": """Hi,
 
-My name is [YOUR NAME]. I'm a web designer who specializes in working with contractors across Utah.
+My name is {SENDER_NAME}. I'm a web designer who specializes in working with contractors across Utah.
 
 I put together a custom website sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+{SENDER_DOMAIN}/companies/{slug}
 
 The site is built to help you win more bids — it showcases your services, builds credibility, and makes it simple for homeowners to reach you. It's mobile-friendly and includes trust signals like licensing, insurance, and reviews.
 
 I'd love to get on a call and walk you through it. Completely free to look at.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hi! I'm [NAME], a web designer in Utah. I built a free website sample for {name}: [YOUR DOMAIN]/companies/{slug}. Would you be open to a quick chat about it?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hi! I'm {SENDER_NAME}, a web designer in Utah. I built a free website sample for {name}: {SENDER_DOMAIN}/companies/{slug}. Would you be open to a quick chat about it?""",
         "call_script": """Hello, is this the owner of {name}?
 
-This is [YOUR NAME] — I'm a local web designer. I built a free website sample specifically for {name}. Contractors with strong websites consistently win more bids because homeowners check them out before they ever pick up the phone.
+This is {SENDER_NAME} — I'm a local web designer. I built a free website sample specifically for {name}. Contractors with strong websites consistently win more bids because homeowners check them out before they ever pick up the phone.
 
 Can I text you the link? It only takes a second to look at, and there's no obligation."""
     },
@@ -168,21 +174,21 @@ Can I text you the link? It only takes a second to look at, and there's no oblig
         "subject": "Free Website for {name} — See It Here",
         "email": """Hi there,
 
-I'm [YOUR NAME], a web designer in Utah. Kitchen remodeling is a high-consideration purchase — homeowners spend weeks researching before calling anyone.
+I'm {SENDER_NAME}, a web designer in Utah. Kitchen remodeling is a high-consideration purchase — homeowners spend weeks researching before calling anyone.
 
 I built a free website sample for {name} to help you capture those searchers:
-[YOUR DOMAIN]/companies/{slug}
+{SENDER_DOMAIN}/companies/{slug}
 
 It includes a portfolio-style layout, service descriptions, testimonials, and a strong call to action. The kind of site that turns Google searches into phone calls.
 
 Happy to walk you through it — no cost, no commitment.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hey! Built a free website sample for {name} — [YOUR DOMAIN]/companies/{slug}. Kitchen remodelers with great websites get way more leads. Want to chat about it?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hey! Built a free website sample for {name} — {SENDER_DOMAIN}/companies/{slug}. Kitchen remodelers with great websites get way more leads. Want to chat about it?""",
         "call_script": """Hi, is this the owner of {name}?
 
-I'm [YOUR NAME], a web designer. I built a free website sample for you — kitchen remodeling is one of those services where homeowners do a lot of research online before calling. A great website makes you the obvious choice.
+I'm {SENDER_NAME}, a web designer. I built a free website sample for you — kitchen remodeling is one of those services where homeowners do a lot of research online before calling. A great website makes you the obvious choice.
 
 Can I text you the link? I'd love your feedback."""
     },
@@ -190,183 +196,183 @@ Can I text you the link? I'd love your feedback."""
         "subject": "Built a Website for {name} — Free to View",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer in Utah. I built a free website sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+I'm {SENDER_NAME}, a web designer in Utah. I built a free website sample for {name}:
+{SENDER_DOMAIN}/companies/{slug}
 
 Bathroom remodels are a significant investment — homeowners research heavily before choosing a contractor. The website I built positions {name} as the professional, trustworthy choice with before/after framing, services, and a strong CTA.
 
 No strings attached. Would love to connect if you're interested.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hi! I'm [NAME]. Built a free site for {name}: [YOUR DOMAIN]/companies/{slug}. Homeowners google remodelers before calling — want to put your best foot forward?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hi! I'm {SENDER_NAME}. Built a free site for {name}: {SENDER_DOMAIN}/companies/{slug}. Homeowners google remodelers before calling — want to put your best foot forward?""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME] — I'm a web designer and I built a free website sample for your business. Bathroom remodelers who have a professional site get way more leads from Google. I'd love to text you the link — no commitment."""
+I'm {SENDER_NAME} — I'm a web designer and I built a free website sample for your business. Bathroom remodelers who have a professional site get way more leads from Google. I'd love to text you the link — no commitment."""
     },
     "Tile contractor": {
         "subject": "Free Website Built for {name}",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer based in Utah.
+I'm {SENDER_NAME}, a web designer based in Utah.
 
 I built a free website sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+{SENDER_DOMAIN}/companies/{slug}
 
 Tile work is visual — homeowners want to see your style and expertise before calling. The site I built showcases your services, builds trust, and makes it easy to reach you.
 
 No cost to view. Happy to customize it for you if you're interested.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hey! Built a free website for {name}: [YOUR DOMAIN]/companies/{slug}. Tile work is visual — a great site brings in more calls. Want to check it out?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hey! Built a free website for {name}: {SENDER_DOMAIN}/companies/{slug}. Tile work is visual — a great site brings in more calls. Want to check it out?""",
         "call_script": """Hi, is this the owner of {name}?
 
-I'm [YOUR NAME], a web designer. Tile work is very visual — homeowners love seeing examples of work and a professional site before calling. I built a free sample for you. Can I text you the link?"""
+I'm {SENDER_NAME}, a web designer. Tile work is very visual — homeowners love seeing examples of work and a professional site before calling. I built a free sample for you. Can I text you the link?"""
     },
     "Cabinet maker": {
         "subject": "Free Website Sample for {name}",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer in Utah who loves working with craftsmen.
+I'm {SENDER_NAME}, a web designer in Utah who loves working with craftsmen.
 
 Custom cabinetry is a premium service — your website should reflect that. I built a free sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+{SENDER_DOMAIN}/companies/{slug}
 
 It's designed to showcase craftsmanship, build trust, and convert visitors into leads. No cost, no obligation.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hi! Built a free site for {name}: [YOUR DOMAIN]/companies/{slug}. Custom cabinets deserve a premium website — want to take a look?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hi! Built a free site for {name}: {SENDER_DOMAIN}/companies/{slug}. Custom cabinets deserve a premium website — want to take a look?""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME] — I build websites for craftsmen and contractors. I put together a free website sample for your cabinet business. High-end woodwork deserves a site that shows it off. Can I text you the link?"""
+I'm {SENDER_NAME} — I build websites for craftsmen and contractors. I put together a free website sample for your cabinet business. High-end woodwork deserves a site that shows it off. Can I text you the link?"""
     },
     "Drywall contractor": {
         "subject": "Free Website for {name} — Already Built It",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer in Utah. I built a free website sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+I'm {SENDER_NAME}, a web designer in Utah. I built a free website sample for {name}:
+{SENDER_DOMAIN}/companies/{slug}
 
 Homeowners searching for drywall repair want to find someone they can trust quickly. The site I built makes {name} look professional and makes it easy to call.
 
 No charge, no commitment. Let me know if you'd like to take it live.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hey! Built a free site for {name}: [YOUR DOMAIN]/companies/{slug}. Want more drywall leads from Google? Let me know!""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hey! Built a free site for {name}: {SENDER_DOMAIN}/companies/{slug}. Want more drywall leads from Google? Let me know!""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME], a web designer. I built a free website for your drywall business — it's already done. Can I text you the link to take a look?"""
+I'm {SENDER_NAME}, a web designer. I built a free website for your drywall business — it's already done. Can I text you the link to take a look?"""
     },
     "Home builder": {
         "subject": "{name} — Your Free Website Sample Is Ready",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer who works with home builders in Utah.
+I'm {SENDER_NAME}, a web designer who works with home builders in Utah.
 
 Custom home building is one of the biggest decisions a family makes — your website needs to inspire confidence. I built a free sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+{SENDER_DOMAIN}/companies/{slug}
 
 It's designed to showcase your portfolio, communicate quality, and generate qualified leads. No cost to view.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hi! Built a free website for {name}: [YOUR DOMAIN]/companies/{slug}. Home buyers research heavily online — want your site to make the right impression?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hi! Built a free website for {name}: {SENDER_DOMAIN}/companies/{slug}. Home buyers research heavily online — want your site to make the right impression?""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME] — I specialize in websites for home builders. I built a free sample for your business that's designed to inspire trust in prospective buyers. Can I text you the link?"""
+I'm {SENDER_NAME} — I specialize in websites for home builders. I built a free sample for your business that's designed to inspire trust in prospective buyers. Can I text you the link?"""
     },
     "Water damage restoration": {
         "subject": "Free Website for {name} — Built & Ready",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer in Utah. Water damage restoration is an urgent, high-stakes service — homeowners call whoever they find first and trust most.
+I'm {SENDER_NAME}, a web designer in Utah. Water damage restoration is an urgent, high-stakes service — homeowners call whoever they find first and trust most.
 
 I built a free website for {name} to help you win those calls:
-[YOUR DOMAIN]/companies/{slug}
+{SENDER_DOMAIN}/companies/{slug}
 
 It emphasizes 24/7 availability, fast response, and trust — exactly what stressed homeowners need to see. No cost to check it out.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hi! Built a free site for {name}: [YOUR DOMAIN]/companies/{slug}. Restoration leads go to whoever shows up first online — want to be that company?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hi! Built a free site for {name}: {SENDER_DOMAIN}/companies/{slug}. Restoration leads go to whoever shows up first online — want to be that company?""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME] — I built a free website for your restoration business. Water damage leads go to whoever homeowners find and trust first. I'd love to text you the link."""
+I'm {SENDER_NAME} — I built a free website for your restoration business. Water damage leads go to whoever homeowners find and trust first. I'd love to text you the link."""
     },
     "Auto repair shop": {
         "subject": "Free Website Sample Built for {name}",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer in Utah. I built a free website sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+I'm {SENDER_NAME}, a web designer in Utah. I built a free website sample for {name}:
+{SENDER_DOMAIN}/companies/{slug}
 
 Car owners want to know they can trust a mechanic before they hand over their keys. The site I built builds that trust with services, certifications, and reviews front and center.
 
 No cost, no obligation. Happy to chat.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hey! Built a free site for {name}: [YOUR DOMAIN]/companies/{slug}. Customers Google mechanics before calling — want more of those calls?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hey! Built a free site for {name}: {SENDER_DOMAIN}/companies/{slug}. Customers Google mechanics before calling — want more of those calls?""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME], a web designer. I built a free website for your shop — car owners research mechanics online before calling. I'd love to text you the link to take a look."""
+I'm {SENDER_NAME}, a web designer. I built a free website for your shop — car owners research mechanics online before calling. I'd love to text you the link to take a look."""
     },
     "Marble contractor": {
         "subject": "Free Premium Website Sample for {name}",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer in Utah who loves working with craftspeople.
+I'm {SENDER_NAME}, a web designer in Utah who loves working with craftspeople.
 
 Stone and marble work is stunning — your website should reflect that. I built a free sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+{SENDER_DOMAIN}/companies/{slug}
 
 It's designed to convey premium quality and craftsmanship to attract the right clients. No cost to view.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hi! Built a free site for {name}: [YOUR DOMAIN]/companies/{slug}. Premium stone deserves a premium website — want to take a look?""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hi! Built a free site for {name}: {SENDER_DOMAIN}/companies/{slug}. Premium stone deserves a premium website — want to take a look?""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME] — I build premium websites for craftsmen. I put together a free site for your marble and stone business. Can I text you the link?"""
+I'm {SENDER_NAME} — I build premium websites for craftsmen. I put together a free site for your marble and stone business. Can I text you the link?"""
     },
     "Electrical installation service": {
         "subject": "Free Website Built for {name}",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer in Utah. I built a free website sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+I'm {SENDER_NAME}, a web designer in Utah. I built a free website sample for {name}:
+{SENDER_DOMAIN}/companies/{slug}
 
 Commercial and residential electrical installation clients look for expertise and credibility online before signing contracts. The site I built showcases your capabilities and makes it easy to reach you.
 
 No cost, no commitment. Let me know if you'd like to talk.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hi! Built a free site for {name}: [YOUR DOMAIN]/companies/{slug}. Want more commercial and residential installation leads? Let's chat!""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hi! Built a free site for {name}: {SENDER_DOMAIN}/companies/{slug}. Want more commercial and residential installation leads? Let's chat!""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME], a web designer. I built a free site for your electrical installation business. Commercial clients especially check websites before reaching out — can I text you the link?"""
+I'm {SENDER_NAME}, a web designer. I built a free site for your electrical installation business. Commercial clients especially check websites before reaching out — can I text you the link?"""
     },
     "Contractor": {
         "subject": "Free Website for {name} — Ready to View",
         "email": """Hi,
 
-I'm [YOUR NAME], a web designer in Utah. I built a free website sample for {name}:
-[YOUR DOMAIN]/companies/{slug}
+I'm {SENDER_NAME}, a web designer in Utah. I built a free website sample for {name}:
+{SENDER_DOMAIN}/companies/{slug}
 
 A professional website helps you win more bids and attract better clients. The sample showcases your services, builds trust, and makes it easy to get in touch.
 
 No cost, no obligation.
 
-[YOUR NAME]
-[YOUR PHONE]""",
-        "sms": """Hi! Built a free site for {name}: [YOUR DOMAIN]/companies/{slug}. Want more leads from your website? Happy to chat.""",
+{SENDER_NAME}
+{SENDER_PHONE}""",
+        "sms": """Hi! Built a free site for {name}: {SENDER_DOMAIN}/companies/{slug}. Want more leads from your website? Happy to chat.""",
         "call_script": """Hi, is this {name}?
 
-I'm [YOUR NAME], a web designer. I built a free website for your business — can I text you the link to take a look? No commitment."""
+I'm {SENDER_NAME}, a web designer. I built a free website for your business — can I text you the link to take a look? No commitment."""
     },
 }
 
@@ -388,10 +394,13 @@ def generate_outreach_page(companies, out_path):
     for c in companies:
         slug = slugify(c["name"])
         tmpl = get_template(c["type"])
-        subj = tmpl["subject"].format(name=c["name"], slug=slug)
-        email_body = tmpl["email"].format(name=c["name"], slug=slug)
-        sms_body = tmpl["sms"].format(name=c["name"], slug=slug)
-        call_body = tmpl["call_script"].format(name=c["name"], slug=slug)
+        fmt = dict(name=c["name"], slug=slug,
+                   SENDER_NAME=SENDER_NAME, SENDER_PHONE=SENDER_PHONE,
+                   SENDER_EMAIL=SENDER_EMAIL, SENDER_DOMAIN=SENDER_DOMAIN)
+        subj       = tmpl["subject"].format(**fmt)
+        email_body = tmpl["email"].format(**fmt)
+        sms_body   = tmpl["sms"].format(**fmt)
+        call_body  = tmpl["call_script"].format(**fmt)
 
         company_rows.append({
             "name": c["name"],
@@ -524,7 +533,7 @@ function showCompany(idx) {{
   const r = DATA[idx];
   document.querySelectorAll('.co-item').forEach((el,i) => el.classList.toggle('active', i === idx));
 
-  const websiteUrl = `[YOUR DOMAIN]/companies/${{r.slug}}.html`;
+  const websiteUrl = `{SENDER_DOMAIN}/companies/${{r.slug}}.html`;
 
   document.getElementById('mainPane').innerHTML = `
     <div class="company-header">
@@ -538,9 +547,9 @@ function showCompany(idx) {{
       </div>
     </div>
 
-    <div class="notice">
-      <strong>📌 Before sending — replace these placeholders:</strong>
-      [YOUR NAME] · [YOUR PHONE] · [YOUR EMAIL] · [YOUR DOMAIN]
+    <div class="notice" style="background:#ecfdf5;border-color:#6ee7b7;color:#065f46">
+      <strong>✅ Sending as: {SENDER_NAME} — {SENDER_PHONE} — {SENDER_EMAIL}</strong>
+      All templates are pre-filled with your contact info and the website link for this company.
     </div>
 
     <div class="tabs">
@@ -638,7 +647,8 @@ def generate_leads_csv(companies, out_path):
     fieldnames = [
         "Company Name", "Business Type", "Phone", "City",
         "Website URL", "Status", "Email Sent", "SMS Sent", "Called",
-        "Date Contacted", "Follow-Up Date", "Response Notes", "Deal Value", "Priority"
+        "Date Contacted", "Follow-Up Date", "Response Notes", "Deal Value", "Priority",
+        "Owner Name", "Owner Email",
     ]
     rows = []
     for c in companies:
@@ -648,7 +658,7 @@ def generate_leads_csv(companies, out_path):
             "Business Type": c["type"],
             "Phone": c["phone"],
             "City": c["city"],
-            "Website URL": f"[YOUR DOMAIN]/companies/{slug}.html",
+            "Website URL": f"https://{SENDER_DOMAIN}/companies/{slug}.html",
             "Status": "New Lead",
             "Email Sent": "No",
             "SMS Sent": "No",
@@ -658,6 +668,8 @@ def generate_leads_csv(companies, out_path):
             "Response Notes": "",
             "Deal Value": "",
             "Priority": "Medium",
+            "Owner Name": "",
+            "Owner Email": "",
         })
 
     with open(out_path, "w", newline="") as f:
