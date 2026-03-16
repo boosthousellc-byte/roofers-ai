@@ -4,38 +4,61 @@
   'use strict';
 
   /* --- Lead Form Handling --- */
+  // Point to the Flask API. Override via data-api-url attribute on <form> or
+  // set window.FUNNEL_API_URL before this script loads.
+  var API_BASE = window.FUNNEL_API_URL
+    || (leadForm && leadForm.getAttribute('data-api-url'))
+    || '';
+
   const leadForm = document.getElementById('lead-form');
   if (leadForm) {
     leadForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const btn = leadForm.querySelector('.form-submit');
-      const originalText = btn.textContent;
       btn.textContent = 'Submitting...';
       btn.disabled = true;
 
       const formData = new FormData(leadForm);
       const lead = {};
       formData.forEach(function(value, key) { lead[key] = value; });
-
-      // Store lead locally
-      var leads = JSON.parse(localStorage.getItem('funnel_leads') || '[]');
       lead.submitted_at = new Date().toISOString();
       lead.status = 'new';
+
+      // Always persist locally so the dashboard works offline too
+      var leads = JSON.parse(localStorage.getItem('funnel_leads') || '[]');
       leads.push(lead);
       localStorage.setItem('funnel_leads', JSON.stringify(leads));
 
-      // Simulate submission delay then show success
-      setTimeout(function() {
+      function onSuccess() {
         leadForm.style.display = 'none';
         var success = document.getElementById('form-success');
         if (success) success.style.display = 'block';
-
-        // Redirect to thank-you after brief pause
         setTimeout(function() {
           var businessName = encodeURIComponent(lead.business_name || '');
           window.location.href = 'thank-you.html?business=' + businessName;
         }, 1500);
-      }, 800);
+      }
+
+      // POST to backend API; fall back to local-only on network error
+      if (API_BASE) {
+        fetch(API_BASE + '/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(lead),
+        })
+          .then(function(res) {
+            if (!res.ok) { throw new Error('HTTP ' + res.status); }
+            return res.json();
+          })
+          .then(onSuccess)
+          .catch(function() {
+            // Backend unreachable — still show success (lead is in localStorage)
+            onSuccess();
+          });
+      } else {
+        // No API configured — use localStorage only
+        setTimeout(onSuccess, 600);
+      }
     });
   }
 
