@@ -1,31 +1,35 @@
 #!/usr/bin/env python3
 """
 Interactive SMS outreach script — sends one at a time with confirmation.
-Uses Twilio to text all 51 Utah contractor companies about their free website.
+Uses Quo (formerly OpenPhone) API to text all 51 Utah contractor companies
+about their free website.
 
 Setup:
-  1. Copy .env.example → .env and fill in your Twilio credentials
-  2. Run: python3 sms_outreach.py
-  3. Approve or skip each message before it sends
-  4. Results are logged to leads.csv automatically
+  1. Copy .env.example → .env and fill in your Quo API key & phone number ID
+  2. Get your API key from Quo workspace settings → API
+  3. Get your phone number ID by running: python3 sms_outreach.py --list-numbers
+  4. Run: python3 sms_outreach.py
+  5. Approve or skip each message before it sends
+  6. Results are logged to leads.csv automatically
 """
 
-import os, csv, re, time, sys
+import os, csv, re, time, sys, json
 from datetime import date
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 from dotenv import load_dotenv
-from twilio.rest import Client
-from twilio.base.exceptions import TwilioRestException
 
 load_dotenv()
 
 # ── Config ───────────────────────────────────────────────────────────────────
-ACCOUNT_SID  = os.getenv("TWILIO_ACCOUNT_SID")
-AUTH_TOKEN   = os.getenv("TWILIO_AUTH_TOKEN")
-FROM_NUMBER  = os.getenv("TWILIO_FROM_NUMBER")
-LEADS_CSV    = os.path.join(os.path.dirname(__file__), "leads.csv")
-LIVE_DOMAIN  = "https://roofers-ai.netlify.app"
+QUO_API_KEY      = os.getenv("QUO_API_KEY")
+QUO_PHONE_NUMBER_ID = os.getenv("QUO_PHONE_NUMBER_ID")
+LEADS_CSV        = os.path.join(os.path.dirname(__file__), "leads.csv")
+LIVE_DOMAIN      = "https://roofers-ai.netlify.app"
 
-SENDER_NAME  = "Derek Lee"
+QUO_API_BASE     = "https://api.openphone.com/v1"
+
+SENDER_NAME      = "Derek Lee"
 
 # ── Company data with SMS templates ──────────────────────────────────────────
 COMPANIES = [
@@ -113,6 +117,47 @@ def get_sms(company):
         url=f"{LIVE_DOMAIN}/companies/{slug}.html",
     )
 
+# ── Quo API helpers ──────────────────────────────────────────────────────────
+def quo_request(method, endpoint, body=None):
+    """Make a request to the Quo (OpenPhone) API."""
+    url = f"{QUO_API_BASE}{endpoint}"
+    data = json.dumps(body).encode() if body else None
+    req = Request(url, data=data, method=method)
+    req.add_header("Authorization", QUO_API_KEY)
+    req.add_header("Content-Type", "application/json")
+    resp = urlopen(req)
+    return json.loads(resp.read().decode())
+
+def list_phone_numbers():
+    """List all phone numbers in the Quo workspace."""
+    result = quo_request("GET", "/phone-numbers")
+    numbers = result.get("data", [])
+    if not numbers:
+        print("\n❌  No phone numbers found in your Quo workspace.\n")
+        return
+    print(f"\n{'─'*60}")
+    print("  📱  Your Quo Phone Numbers")
+    print(f"{'─'*60}")
+    for num in numbers:
+        print(f"  ID:     {num['id']}")
+        print(f"  Number: {num.get('formattedNumber', num.get('number', 'N/A'))}")
+        print(f"  Name:   {num.get('name', 'N/A')}")
+        print(f"  Type:   {num.get('type', 'N/A')}")
+        print()
+    print("  Copy the ID of your business number into .env as QUO_PHONE_NUMBER_ID")
+    print(f"{'─'*60}\n")
+
+def send_sms(to_number, message):
+    """Send an SMS via the Quo API. Returns the message ID on success."""
+    body = {
+        "content": message,
+        "from": QUO_PHONE_NUMBER_ID,
+        "to": [to_number],
+    }
+    result = quo_request("POST", "/messages", body)
+    return result.get("data", {}).get("id", "sent")
+
+# ── CSV tracking ─────────────────────────────────────────────────────────────
 def load_sent():
     """Return set of company names already marked SMS Sent = Yes in leads.csv."""
     sent = set()
@@ -146,16 +191,28 @@ def update_csv(company_name, status, notes=""):
         writer.writerows(rows)
 
 def check_env():
-    missing = [k for k in ("TWILIO_ACCOUNT_SID","TWILIO_AUTH_TOKEN","TWILIO_FROM_NUMBER") if not os.getenv(k)]
-    if missing:
-        print("\n❌  Missing environment variables:", ", ".join(missing))
-        print("    Copy .env.example → .env and fill in your Twilio credentials.\n")
+    if not QUO_API_KEY:
+        print("\n❌  Missing QUO_API_KEY in .env")
+        print("    Get your API key from Quo workspace settings → API")
+        print("    Then add it to .env\n")
+        sys.exit(1)
+    if not QUO_PHONE_NUMBER_ID:
+        print("\n❌  Missing QUO_PHONE_NUMBER_ID in .env")
+        print("    Run: python3 sms_outreach.py --list-numbers")
+        print("    Then copy your business number ID into .env\n")
         sys.exit(1)
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
+    # Allow listing phone numbers without full env check
+    if "--list-numbers" in sys.argv:
+        if not QUO_API_KEY:
+            print("\n❌  Set QUO_API_KEY in .env first, then re-run.\n")
+            sys.exit(1)
+        list_phone_numbers()
+        return
+
     check_env()
-    client = Client(ACCOUNT_SID, AUTH_TOKEN)
     already_sent = load_sent()
 
     pending = [c for c in COMPANIES if c["name"] not in already_sent]
@@ -165,8 +222,8 @@ def main():
         return
 
     print(f"\n{'─'*60}")
-    print(f"  📱  SMS Outreach — {len(pending)} companies remaining")
-    print(f"  From: {FROM_NUMBER}  |  Sender: {SENDER_NAME}")
+    print(f"  📱  SMS Outreach via Quo — {len(pending)} companies remaining")
+    print(f"  From: {QUO_PHONE_NUMBER_ID}  |  Sender: {SENDER_NAME}")
     print(f"  Site: {LIVE_DOMAIN}")
     print(f"{'─'*60}")
     print("  Commands:  [Enter] = Send   [s] = Skip   [q] = Quit\n")
@@ -198,18 +255,15 @@ def main():
                 break
             elif choice == "":
                 try:
-                    message = client.messages.create(
-                        body=msg,
-                        from_=FROM_NUMBER,
-                        to=company["phone"],
-                    )
+                    msg_id = send_sms(company["phone"], msg)
                     update_csv(company["name"], "sent")
                     sent_count += 1
-                    print(f"  ✅  Sent! SID: {message.sid}\n")
-                    time.sleep(1)  # 1s pause between sends to stay within rate limits
-                except TwilioRestException as e:
-                    update_csv(company["name"], "error", str(e))
-                    print(f"  ❌  Failed: {e}\n")
+                    print(f"  ✅  Sent! Message ID: {msg_id}\n")
+                    time.sleep(1)  # 1s pause between sends
+                except HTTPError as e:
+                    error_body = e.read().decode() if e.fp else str(e)
+                    update_csv(company["name"], "error", error_body)
+                    print(f"  ❌  Failed: {e.code} — {error_body}\n")
                 break
 
     print(f"\n{'─'*60}")
