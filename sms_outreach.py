@@ -84,21 +84,21 @@ COMPANIES = [
 
 # ── SMS templates by type ─────────────────────────────────────────────────────
 SMS_TEMPLATES = {
-    "Electrician":                  "Hi! I'm {sender}, a local web designer. I built a free website for {name} — no catch. Check it out: {url}. Would love to get you more calls from Google. Interested?",
-    "Plumber":                      "Hey! I'm {sender}, a local web designer. Built a free website for {name}: {url}. Plumbers with great sites get way more leads. Want to take it live?",
-    "Handyman":                     "Hi! I'm {sender} — built a free website for {name}: {url}. No catch — would you want this for your business?",
-    "General contractor":           "Hi! I'm {sender}, a web designer in Utah. Built a free website for {name}: {url}. Want more leads from Google? Happy to chat.",
-    "Kitchen remodeler":            "Hey! I'm {sender}. Built a free website for {name} — {url}. Kitchen remodelers with great sites get way more leads. Want to chat about it?",
-    "Bathroom remodeler":           "Hi! I'm {sender}. Built a free site for {name}: {url}. Homeowners google remodelers before calling — want to put your best foot forward?",
-    "Tile contractor":              "Hey! I'm {sender}. Built a free website for {name}: {url}. Tile work is visual — a great site brings in more calls. Want to check it out?",
-    "Cabinet maker":                "Hi! I'm {sender}. Built a free site for {name}: {url}. Custom cabinets deserve a premium website — want to take a look?",
-    "Drywall contractor":           "Hey! I'm {sender}. Built a free site for {name}: {url}. Want more drywall leads from Google? Let me know!",
-    "Home builder":                 "Hi! I'm {sender}. Built a free website for {name}: {url}. Home buyers research heavily online — want your site to make the right impression?",
-    "Water damage restoration":     "Hi! I'm {sender}. Built a free site for {name}: {url}. Restoration leads go to whoever shows up first online — want to be that company?",
-    "Auto repair shop":             "Hey! I'm {sender}. Built a free site for {name}: {url}. Customers Google mechanics before calling — want more of those calls?",
-    "Marble contractor":            "Hi! I'm {sender}. Built a free site for {name}: {url}. Premium stone deserves a premium website — want to take a look?",
-    "Electrical installation service": "Hi! I'm {sender}. Built a free site for {name}: {url}. Want more commercial and residential installation leads? Let's chat!",
-    "Contractor":                   "Hi! I'm {sender}. Built a free website for {name}: {url}. Want more leads? Happy to chat.",
+    "Electrician":                  "Hi! I'm {sender}, a local web designer building my 2026 portfolio. I picked {name} as a project and already built you a free website: {url}. Can I text you more details? No strings attached.",
+    "Plumber":                      "Hey! I'm {sender}, a web designer in Utah. I'm building my 2026 portfolio and built a free website for {name}: {url}. Would love to walk you through it — no catch at all.",
+    "Handyman":                     "Hi! I'm {sender} — building my 2026 portfolio and put together a free website for {name}: {url}. No catch — take a look and let me know what you think!",
+    "General contractor":           "Hi! I'm {sender}, a web designer in Utah building my 2026 portfolio. I put together a free website for {name}: {url}. Would love to get your thoughts — no obligation.",
+    "Kitchen remodeler":            "Hey! I'm {sender}. Building my 2026 portfolio and picked {name} as a project — already built you a free website: {url}. Homeowners research kitchens online for weeks. Want to chat about it?",
+    "Bathroom remodeler":           "Hi! I'm {sender}. Building my 2026 portfolio and created a free site for {name}: {url}. Homeowners google remodelers before calling — this site puts your best foot forward. Take a look!",
+    "Tile contractor":              "Hey! I'm {sender}. Building my 2026 portfolio and built a free website for {name}: {url}. Tile work is visual — a great site brings in more calls. Check it out!",
+    "Cabinet maker":                "Hi! I'm {sender}. Building my 2026 portfolio and created a free site for {name}: {url}. Custom cabinets deserve a premium website — want to take a look?",
+    "Drywall contractor":           "Hey! I'm {sender}. Building my 2026 portfolio and put together a free site for {name}: {url}. Want more drywall leads from Google? Take a look!",
+    "Home builder":                 "Hi! I'm {sender}. Building my 2026 portfolio and picked {name} as a project — already built you a free website: {url}. Home buyers research heavily online. Want to see it?",
+    "Water damage restoration":     "Hi! I'm {sender}. Building my 2026 portfolio and created a free site for {name}: {url}. Restoration leads go to whoever shows up first online — take a look!",
+    "Auto repair shop":             "Hey! I'm {sender}. Building my 2026 portfolio and put together a free site for {name}: {url}. Customers Google mechanics before calling — check it out!",
+    "Marble contractor":            "Hi! I'm {sender}. Building my 2026 portfolio and built a free site for {name}: {url}. Premium stone deserves a premium website — want to take a look?",
+    "Electrical installation service": "Hi! I'm {sender}. Building my 2026 portfolio and created a free site for {name}: {url}. Commercial clients check websites before reaching out. Take a look!",
+    "Contractor":                   "Hi! I'm {sender}. Building my 2026 portfolio and put together a free website for {name}: {url}. No catch — would love your thoughts!",
 }
 
 def slugify(name):
