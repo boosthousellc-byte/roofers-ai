@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /legacy/outreach/
+
+Sitemap: https://roofers-ai.io/sitemap.xml
