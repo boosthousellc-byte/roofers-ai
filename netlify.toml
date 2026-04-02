@@ -1,0 +1,24 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+  from = "/companies/*"
+  to = "/legacy/companies/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/css/*"
+  to = "/legacy/css/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/js/*"
+  to = "/legacy/js/:splat"
+  status = 200
