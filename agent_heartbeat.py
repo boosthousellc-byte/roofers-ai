@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 import asyncio
 import json
 from datetime import datetime
@@ -8,6 +8,11 @@ app = FastAPI()
 
 # In-memory agent state
 agents = {}
+
+@app.get("/dashboard")
+async def dashboard():
+    """Serve the real-time agent monitoring dashboard"""
+    return FileResponse("dashboard.html")
 
 @app.post("/agent/heartbeat")
 async def agent_heartbeat(agent_id: str, task: str, status: str, progress: int):
