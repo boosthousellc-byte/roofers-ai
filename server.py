@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Audit Engine API Server
-Lightweight Flask backend for the website audit tool.
+Lightweight Flask backend for the website audit tool and funnel automations.
 
 Run locally:
     python server.py
@@ -28,6 +28,7 @@ FUNNEL_LEADS_FIELDS = [
     "id", "first_name", "last_name", "email", "phone",
     "business_name", "website", "google_customers",
     "submitted_at", "status", "sequence_step", "last_emailed_at",
+    "lead_score", "sms_step", "last_sms_at",
 ]
 
 
@@ -159,6 +160,9 @@ def capture_lead():
         "status": "new",
         "sequence_step": "0",
         "last_emailed_at": "",
+        "lead_score": "0",
+        "sms_step": "0",
+        "last_sms_at": "",
     }
 
     _append_lead(lead)
@@ -181,6 +185,94 @@ def list_leads():
     with open(FUNNEL_LEADS_CSV, newline="") as f:
         rows = list(csv.DictReader(f))
     return jsonify(rows)
+
+
+@app.route("/api/leads/<int:lead_id>", methods=["GET"])
+def get_lead(lead_id):
+    """Return a single lead by ID."""
+    if not os.path.exists(FUNNEL_LEADS_CSV):
+        return jsonify({"error": "No leads found"}), 404
+    with open(FUNNEL_LEADS_CSV, newline="") as f:
+        for row in csv.DictReader(f):
+            if str(row.get("id")) == str(lead_id):
+                return jsonify(row)
+    return jsonify({"error": "Lead not found"}), 404
+
+
+@app.route("/api/leads/<int:lead_id>/status", methods=["PATCH"])
+def update_lead_status(lead_id):
+    """Update a lead's status (e.g. converted, paused, unsubscribed)."""
+    data = request.get_json()
+    if not data or "status" not in data:
+        return jsonify({"error": "status field required"}), 400
+
+    new_status = data["status"].strip().lower()
+    valid = ("new", "active", "paused", "converted", "unsubscribed", "sequence_complete")
+    if new_status not in valid:
+        return jsonify({"error": f"Invalid status. Must be one of: {', '.join(valid)}"}), 400
+
+    if not os.path.exists(FUNNEL_LEADS_CSV):
+        return jsonify({"error": "No leads found"}), 404
+
+    with open(FUNNEL_LEADS_CSV, newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    found = False
+    for row in rows:
+        if str(row.get("id")) == str(lead_id):
+            row["status"] = new_status
+            found = True
+            break
+
+    if not found:
+        return jsonify({"error": "Lead not found"}), 404
+
+    with open(FUNNEL_LEADS_CSV, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=FUNNEL_LEADS_FIELDS)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    return jsonify({"ok": True, "id": lead_id, "status": new_status})
+
+
+@app.route("/api/automations/stats", methods=["GET"])
+def automation_stats():
+    """Return funnel automation statistics."""
+    try:
+        from funnel_automations import get_automation_stats
+        stats = get_automation_stats()
+        return jsonify(stats)
+    except ImportError:
+        return jsonify({"error": "funnel_automations module not available"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/automations/log", methods=["GET"])
+def automation_log():
+    """Return recent automation event log entries."""
+    log_csv = os.path.join(os.path.dirname(__file__), "automation_log.csv")
+    if not os.path.exists(log_csv):
+        return jsonify([])
+    with open(log_csv, newline="") as f:
+        rows = list(csv.DictReader(f))
+    # Return most recent 50 entries
+    limit = request.args.get("limit", 50, type=int)
+    return jsonify(rows[-limit:])
+
+
+@app.route("/api/automations/reengage", methods=["POST"])
+def trigger_reengagement():
+    """Manually trigger re-engagement emails for stale leads."""
+    try:
+        from funnel_automations import run_reengagement
+        dry_run = request.args.get("dry_run", "false").lower() == "true"
+        count = run_reengagement(dry_run=dry_run)
+        return jsonify({"ok": True, "reengaged": count, "dry_run": dry_run})
+    except ImportError:
+        return jsonify({"error": "funnel_automations module not available"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
