@@ -1,4 +1,4 @@
-name: Funnel Follow-up Emails
+name: Funnel Automations (Email + SMS Sequences)
 
 on:
   schedule:
@@ -7,15 +7,27 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Dry run (no emails sent)"
+        description: "Dry run (no emails/SMS sent)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      reengage:
+        description: "Run re-engagement for stale leads"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      rescore:
+        description: "Recalculate all lead scores"
         required: false
         default: "false"
         type: choice
         options: ["false", "true"]
 
 jobs:
-  send-followups:
-    name: Advance email sequences
+  run-automations:
+    name: Advance email + SMS sequences
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run funnel automation sequence
+      - name: Run funnel automation sequences
         env:
           SMTP_HOST:          ${{ secrets.SMTP_HOST }}
           SMTP_PORT:          ${{ secrets.SMTP_PORT }}
@@ -42,6 +54,9 @@ jobs:
           OWNER_EMAIL:        ${{ secrets.OWNER_EMAIL }}
           AUDIT_LANDING_URL:  ${{ secrets.AUDIT_LANDING_URL }}
           BOOKING_URL:        ${{ secrets.BOOKING_URL }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN:  ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM_NUMBER: ${{ secrets.TWILIO_FROM_NUMBER }}
         run: |
           FLAGS=""
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
@@ -49,11 +64,37 @@ jobs:
           fi
           python funnel_automations.py $FLAGS
 
-      - name: Commit updated funnel_leads.csv
+      - name: Recalculate lead scores
+        if: ${{ github.event.inputs.rescore == 'true' || github.event.inputs.dry_run != 'true' }}
+        env:
+          SMTP_HOST:          ${{ secrets.SMTP_HOST }}
+          SMTP_PORT:          ${{ secrets.SMTP_PORT }}
+          SMTP_USER:          ${{ secrets.SMTP_USER }}
+          SMTP_PASS:          ${{ secrets.SMTP_PASS }}
+        run: python funnel_automations.py --score
+
+      - name: Run re-engagement
+        if: ${{ github.event.inputs.reengage == 'true' }}
+        env:
+          SMTP_HOST:          ${{ secrets.SMTP_HOST }}
+          SMTP_PORT:          ${{ secrets.SMTP_PORT }}
+          SMTP_USER:          ${{ secrets.SMTP_USER }}
+          SMTP_PASS:          ${{ secrets.SMTP_PASS }}
+          FROM_EMAIL:         ${{ secrets.FROM_EMAIL }}
+          FROM_NAME:          ${{ secrets.FROM_NAME }}
+          BOOKING_URL:        ${{ secrets.BOOKING_URL }}
+        run: |
+          FLAGS=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            FLAGS="--dry-run"
+          fi
+          python funnel_automations.py --reengage $FLAGS
+
+      - name: Commit updated data files
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add funnel_leads.csv || true
-          git diff --cached --quiet || git commit -m "chore: advance funnel email sequences [skip ci]"
+          git add funnel_leads.csv automation_log.csv || true
+          git diff --cached --quiet || git commit -m "chore: advance funnel automations [skip ci]"
           git push || true
