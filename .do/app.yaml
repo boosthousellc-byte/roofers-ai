@@ -1,0 +1,25 @@
+name: roofers-ai-audit
+region: nyc
+
+services:
+  - name: backend
+    dockerfile_path: Dockerfile
+    github:
+      repo: boosthousellc-byte/roofers-ai
+      branch: main
+      deploy_on_push: true
+    http_port: 8080
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    routes:
+      - path: /api
+
+static_sites:
+  - name: frontend
+    github:
+      repo: boosthousellc-byte/roofers-ai
+      branch: main
+      deploy_on_push: true
+    source_dir: audit-frontend
+    routes:
+      - path: /

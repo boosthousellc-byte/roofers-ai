@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "3000:80"
+    volumes:
+      - ./audit-frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend

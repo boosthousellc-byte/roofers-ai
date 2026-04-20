@@ -359,9 +359,11 @@
     <script>
     (function() {
         // UPDATE THIS to your backend URL after deploying
+        // DigitalOcean App Platform routes /api to the backend service automatically.
+        // For a standalone backend, replace the production URL with your droplet IP or domain.
         const API_BASE = window.location.hostname === 'localhost'
             ? 'http://localhost:8080'
-            : 'https://your-backend.example.com';  // <-- Replace after deploy
+            : '';  // Empty = same origin (works on DO App Platform); set to full URL if hosting separately
 
         const form = document.getElementById('auditForm');
         const loading = document.getElementById('loading');
